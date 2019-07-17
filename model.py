@@ -6,6 +6,7 @@ import numpy as np
 from keras.callbacks import *
 from keras.applications.inception_v3 import InceptionV3
 from keras.applications.resnet50 import ResNet50
+from keras.applications.vgg16 import VGG16
 from keras.preprocessing.image import img_to_array
 
 (X_train, y_train), (X_test, y_test) = cifar10.load_data()
@@ -14,14 +15,20 @@ IMAGE_SIZE = X_train.shape[1:]
 
 def model_transfer():
     input_ = Input(shape = IMAGE_SIZE)
-    upsamp_ = UpSampling2D(size = (2, 2))(input_)
-    init_model = ResNet50(include_top = False, weights = 'imagenet', classes = 10)
-    flatten_ = GlobalAveragePooling2D()(init_model.output)
-    dense_10 = Dense(1024)(flatten_)
-#     drop_ = Dropout(0.25)(dense_10)
+#     upsamp_ = UpSampling2D(size = (2, 2))(input_)
+    init_model = VGG16(include_top = False, weights = 'imagenet')
+    init_model.summary()
+    for layer in init_model.layers[:-3]:
+        layer.trainable = False
     
-    soft_max = Dense(10, activation = 'softmax')(dense_10)
-    return Model(inputs = [init_model.input], outputs = [soft_max])
+    resnet_layers = init_model(input_)
+    flatten_ = Flatten()(resnet_layers)
+    norm_ = BatchNormalization()(flatten_)
+    dense_10 = Dense(128)(norm_)
+    drop_ = Dropout(0.5)(dense_10)
+    
+    soft_max = Dense(10, activation = 'softmax')(drop_)
+    return Model(inputs = [input_], outputs = [soft_max])
     
 
 def my_learning_rate(epoch, lrate):
@@ -31,6 +38,14 @@ model = model_transfer()
 print(model.summary())
 model.compile(optimizer = 'adam', loss = 'sparse_categorical_crossentropy', metrics = ['accuracy'])
 
+endp = int(len(X_train) * 0.9)
+
+X_val = X_train[endp:]
+y_val = y_train[endp:]
+
+X_train = X_train[:endp]
+y_train = y_train[:endp]
+
 X_train = X_train / 255
 X_test = X_test / 255
 
@@ -39,7 +54,7 @@ endp = int(len(X_train) * 0.9)
 
 print(X_train.shape)
 
-model.fit(X_train, y_train, epochs = 5)
+model.fit(X_train, y_train, epochs = 100, validation_data = (X_val, y_val))
 
 loss, score = model.evaluate(X_test, y_test)
 
