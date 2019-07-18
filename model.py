@@ -6,7 +6,7 @@ import numpy as np
 from keras.callbacks import *
 from keras.applications.inception_v3 import InceptionV3
 from keras.applications.resnet50 import ResNet50
-from keras.applications.vgg16 import VGG16
+from keras.applications.vgg16 import *
 from keras.preprocessing.image import img_to_array
 
 (X_train, y_train), (X_test, y_test) = cifar10.load_data()
@@ -46,15 +46,16 @@ y_val = y_train[endp:]
 X_train = X_train[:endp]
 y_train = y_train[:endp]
 
-X_train = X_train / 255
-X_test = X_test / 255
+X_train = preprocess_input(X_train)
+X_val = preprocess_input(X_val)
+X_test = preprocess_input(X_test)
 
 endp = int(len(X_train) * 0.9)
 
 
 print(X_train.shape)
 
-model.fit(X_train, y_train, epochs = 100, validation_data = (X_val, y_val))
+model.fit(X_train, y_train, epochs = 50, validation_data = (X_val, y_val))
 
 loss, score = model.evaluate(X_test, y_test)
 
