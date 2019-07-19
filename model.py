@@ -9,9 +9,10 @@ from keras.applications.resnet50 import ResNet50
 from keras.applications.vgg16 import *
 from keras.preprocessing.image import img_to_array, ImageDataGenerator
 from sklearn.utils import shuffle
+from sklearn.model_selection import StratifiedShuffleSplit
 
-(X_train, y_train), (X_test, y_test) = cifar10.load_data()
-IMAGE_SIZE = X_train.shape[1:]
+(X_train_, y_train_), (X_test, y_test) = cifar10.load_data()
+IMAGE_SIZE = X_train_.shape[1:]
 
 datagen = ImageDataGenerator(
     featurewise_center=True,
@@ -51,30 +52,37 @@ model.compile(optimizer = 'adam', loss = 'sparse_categorical_crossentropy', metr
 
 
 
-endp = int(len(X_train) * 0.9)
+# endp = int(len(X_train) * 0.9)
 
-X_train, y_train = shuffle(X_train, y_train)
+# X_train, y_train = shuffle(X_train, y_train)
 
-print(y_train)
+# print(y_train)
 
-X_val = X_train[endp:]
-y_val = y_train[endp:]
+sss = StratifiedShuffleSplit(n_splits = 2, test_size = 0.1, random_state = 0)
 
-X_train = X_train[:endp]
-y_train = y_train[:endp]
+X_train = []
+y_train = []
+X_val = []
+y_val = []
+
+for train_index, val_index in sss.split(X_train_, y_train_):
+    X_train, X_val = X_train_[train_index], X_train_[val_index]
+    y_train, y_val = y_train_[train_index], y_train_[val_index]
+    print(X_train.shape)
+    print(train_index.shape)
 
 X_train = preprocess_input(X_train)
 X_val = preprocess_input(X_val)
 X_test = preprocess_input(X_test)
 
-endp = int(len(X_train) * 0.9)
+# endp = int(len(X_train) * 0.9)
 
 
 print(X_train.shape)
 
 # model.fit(X_train, y_train, epochs = 50, validation_data = (X_val, y_val))
 datagen.fit(X_train)
-# model.fit_generator(datagen.flow(X_train, y_train, batch_size = 32), validation_data = (X_val, y_val), epochs = 25, steps_per_epoch = len(X_train) / 32)
+model.fit_generator(datagen.flow(X_train, y_train, batch_size = 32), validation_data = (X_val, y_val), epochs = 25, steps_per_epoch = len(X_train) / 32)
 
 # loss, score = model.evaluate(X_test, y_test)
 
