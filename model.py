@@ -15,12 +15,11 @@ IMAGE_SIZE = X_train.shape[1:]
 datagen = ImageDataGenerator(
     featurewise_center=True,
     featurewise_std_normalization=True,
-    rotation_range=20,
+    rotation_range=30,
     width_shift_range=0.2,
     height_shift_range=0.2,
+    zca_whitening = True, 
     horizontal_flip=True)
-
-
 
 
 def model_transfer():
@@ -70,7 +69,7 @@ print(X_train.shape)
 
 # model.fit(X_train, y_train, epochs = 50, validation_data = (X_val, y_val))
 datagen.fit(X_train)
-model.fit_generator(datagen.flow(X_train, y_train, batch_size = 32), validation_data = (X_val, y_val), epochs = 10, steps_per_epoch = len(X_train) / 32)
+model.fit_generator(datagen.flow(X_train, y_train, batch_size = 32), validation_data = (X_val, y_val), epochs = 25, steps_per_epoch = len(X_train) / 32)
 
 loss, score = model.evaluate(X_test, y_test)
 
