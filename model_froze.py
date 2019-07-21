@@ -23,7 +23,6 @@ datagen = ImageDataGenerator(
 
 def model_transfer():
     input_ = Input(shape = IMAGE_SIZE)
-#     upsamp_ = UpSampling2D(size = (2, 2))(input_)
     init_model = VGG16(include_top = False, weights = 'imagenet')
     init_model.summary()
     for layer in init_model.layers:
@@ -34,8 +33,12 @@ def model_transfer():
     norm_ = BatchNormalization()(flatten_)
     dense_10 = Dense(256)(norm_)
     drop_ = Dropout(0.25)(dense_10)
+    dense_11 = Dense(256)(drop_)
+    norm_2 = BatchNormalization()(dense_11)
+    drop_2 = Dropout(0.25)(norm_2)
     
-    soft_max = Dense(10, activation = 'softmax')(drop_)
+    
+    soft_max = Dense(10, activation = 'softmax')(drop_2)
     return Model(inputs = [input_], outputs = [soft_max])
     
 
@@ -48,13 +51,6 @@ print(model.summary())
 adam = Adam(lr = 1e-4)
 model.compile(optimizer = adam, loss = 'sparse_categorical_crossentropy', metrics = ['accuracy'])
 
-
-
-# endp = int(len(X_train) * 0.9)
-
-# X_train, y_train = shuffle(X_train, y_train)
-
-# print(y_train)
 
 sss = StratifiedShuffleSplit(n_splits = 5, test_size = 0.1, random_state = 0)
 
@@ -73,12 +69,9 @@ X_train = preprocess_input(X_train)
 X_val = preprocess_input(X_val)
 X_test = preprocess_input(X_test)
 
-# endp = int(len(X_train) * 0.9)
-
 
 print(X_train.shape)
 
-# model.fit(X_train, y_train, epochs = 50, validation_data = (X_val, y_val))
 datagen.fit(X_train)
 model.fit_generator(datagen.flow(X_train, y_train, batch_size = 32), validation_data = (X_val, y_val), epochs = 25, steps_per_epoch = len(X_train) / 32)
 
