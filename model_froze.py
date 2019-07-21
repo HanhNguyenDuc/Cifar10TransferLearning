@@ -26,7 +26,7 @@ def model_transfer():
 #     upsamp_ = UpSampling2D(size = (2, 2))(input_)
     init_model = VGG16(include_top = False, weights = 'imagenet')
     init_model.summary()
-    for layer in init_model.layers[:-3]:
+    for layer in init_model.layers:
         layer.trainable = False
     
     resnet_layers = init_model(input_)
