@@ -10,6 +10,7 @@ from keras.applications.vgg16 import *
 from keras.preprocessing.image import img_to_array, ImageDataGenerator
 from sklearn.utils import shuffle
 from sklearn.model_selection import StratifiedShuffleSplit
+from keras.callbacks import ModelCheckpoint
 
 (X_train_, y_train_), (X_test, y_test) = cifar10.load_data()
 IMAGE_SIZE = X_train_.shape[1:]
@@ -21,13 +22,12 @@ datagen = ImageDataGenerator(
     horizontal_flip=True)
 
 
-def model_transfer():
+def model_transfer(not_froze = 0):
     input_ = Input(shape = IMAGE_SIZE)
     init_model = VGG16(include_top = False, weights = 'imagenet')
-    init_model.summary()
     for layer in init_model.layers:
-        layer.trainable = False
-    
+      layer.trainable = False
+          
     resnet_layers = init_model(input_)
     flatten_ = Flatten()(resnet_layers)
     norm_ = BatchNormalization()(flatten_)
@@ -48,9 +48,10 @@ def my_learning_rate(epoch, lrate):
   
 model = model_transfer()
 print(model.summary())
-adam = Adam(lr = 1e-4)
+adam = Adam(lr = 1e-5)
 model.compile(optimizer = adam, loss = 'sparse_categorical_crossentropy', metrics = ['accuracy'])
 
+checkpoint = ModelCheckpoint('weight.hdf5', monitor = 'val_acc', verbose = 1, mode = 'max', save_best_only = True)
 
 sss = StratifiedShuffleSplit(n_splits = 5, test_size = 0.1, random_state = 0)
 
@@ -73,10 +74,15 @@ X_test = preprocess_input(X_test)
 print(X_train.shape)
 
 datagen.fit(X_train)
-model.fit_generator(datagen.flow(X_train, y_train, batch_size = 32), validation_data = (X_val, y_val), epochs = 25, steps_per_epoch = len(X_train) / 32)
+model.fit_generator(datagen.flow(X_train, y_train, batch_size = 32), validation_data = (X_val, y_val), epochs = 25, steps_per_epoch = len(X_train) / 32,
+                   callbacks = [checkpoint])
 
 loss, score = model.evaluate(X_test, y_test)
 
 print(loss, score)
+
+#Change 1: Learning rate = 1e-4, no trainable layer in convnet, 2 dense with 256 unit, after each dense layer are batchnorm and dropout .25, 25 epochs
+ #Acc = .65
+#Change 2: Learning rate = 1e-5, train with 25 epochs
 
 
