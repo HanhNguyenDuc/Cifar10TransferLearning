@@ -48,7 +48,7 @@ def my_learning_rate(epoch, lrate):
   
 model = model_transfer()
 print(model.summary())
-adam = Adam(lr = 1e-5)
+adam = Adam(lr = 1e-6)
 model.compile(optimizer = adam, loss = 'sparse_categorical_crossentropy', metrics = ['accuracy'])
 
 checkpoint = ModelCheckpoint('weight.hdf5', monitor = 'val_acc', verbose = 1, mode = 'max', save_best_only = True)
@@ -74,7 +74,7 @@ X_test = preprocess_input(X_test)
 print(X_train.shape)
 
 datagen.fit(X_train)
-model.fit_generator(datagen.flow(X_train, y_train, batch_size = 32), validation_data = (X_val, y_val), epochs = 25, steps_per_epoch = len(X_train) / 32,
+model.fit_generator(datagen.flow(X_train, y_train, batch_size = 32), validation_data = (X_val, y_val), epochs = 100, steps_per_epoch = len(X_train) / 32,
                    callbacks = [checkpoint])
 
 loss, score = model.evaluate(X_test, y_test)
@@ -83,6 +83,8 @@ print(loss, score)
 
 #Change 1: Learning rate = 1e-4, no trainable layer in convnet, 2 dense with 256 unit, after each dense layer are batchnorm and dropout .25, 25 epochs
  #Acc = .65
-#Change 2: Learning rate = 1e-5, train with 25 epochs
+#Change 2: Learning rate = 1e-5, train with 25 epochs, acc = .645
+
+#Change 3: learning rate = 1e-5, train with 100 epochs
 
 
