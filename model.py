@@ -86,4 +86,6 @@ loss, score = model.evaluate(X_test, y_test)
 
 print(loss, score)
 
+#Note: this is fine-tuning model
+
 
