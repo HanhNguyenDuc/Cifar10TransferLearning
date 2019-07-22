@@ -85,6 +85,8 @@ print(loss, score)
  #Acc = .65
 #Change 2: Learning rate = 1e-5, train with 25 epochs, acc = .645
 
-#Change 3: learning rate = 1e-5, train with 100 epochs
+#Change 3: learning rate = 1e-5, train with 100 epochs, acc = .623
+
+
 
 
