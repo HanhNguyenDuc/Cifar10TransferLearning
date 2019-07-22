@@ -66,7 +66,7 @@ def resizeimg(img):
 print(X_train.shape)
 
 datagen.fit(X_train)
-model.fit_generator(datagen.flow(X_train, y_train, batch_size = 32), validation_data = (X_val, y_val), epochs = 100, steps_per_epoch = len(X_train) / 32,
+model.fit_generator(datagen.flow(X_train, y_train, batch_size = 32), validation_data = (X_val, y_val), epochs = 50, steps_per_epoch = len(X_train) / 32,
                    callbacks = [checkpoint], verbose = 1)
 
 loss, score = model.evaluate(X_test, y_test)
@@ -75,8 +75,7 @@ print(loss, score)
 
 #Change 1: Trained with model vgg16 but didn't load weight, init learning rate by 1e-4.
 #Change 2: Used callbacks to save best model and weight. Test acc = .83 with 25 epochs
-#Change 3: train with 100 epochs
-
+#Change 3: train with 50 epochs and got acc = .87 in epochs 47
 
 
 
