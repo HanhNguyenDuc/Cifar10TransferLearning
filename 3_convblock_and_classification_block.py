@@ -78,6 +78,7 @@ model.fit_generator(datagen.flow(X_train, y_train, batch_size = 32), validation_
                    callbacks = [checkpoint])
 
 #Note: lr = 1e-5, 50 epochs, acc with test data = .87
+#Change: lr = 1e-5, 100 epochs, acc with test data = .88
 
 
 
