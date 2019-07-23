@@ -77,6 +77,11 @@ datagen.fit(X_train)
 model.fit_generator(datagen.flow(X_train, y_train, batch_size = 32), validation_data = (X_val, y_val), epochs = 25, steps_per_epoch = len(X_train) / 32,
                    callbacks = [checkpoint])
 
+loss, acc = model.evaluate(X_test, y_test)
+
+print(loss, acc)
+
+
 #Note: lr = 1e-5, 50 epochs, acc with test data = .87
 #Change: lr = 1e-5, 100 epochs, acc with test data = .88
 
