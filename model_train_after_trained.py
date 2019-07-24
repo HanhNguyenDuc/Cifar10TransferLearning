@@ -45,7 +45,7 @@ def model_transfer(not_froze = 0):
 
 model = model_transfer()
 print(model.summary())
-adam = Adam(lr = 1e-6)
+adam = Adam(lr = 1e-3)
 model.compile(optimizer = adam, loss = 'sparse_categorical_crossentropy', metrics = ['accuracy'])
 
 checkpoint = ModelCheckpoint('weight.hdf5', monitor = 'val_acc', verbose = 1, mode = 'max', save_best_only = True)
@@ -82,6 +82,9 @@ model.get_layer('vgg16').get_layer('block5_conv3').trainable = True
 model.get_layer('vgg16').get_layer('block5_conv2').trainable = True
 model.get_layer('vgg16').get_layer('block5_conv1').trainable = True
 
+adam = Adam(lr = 1e-5)
+model.compile(optimizer = adam, loss = 'sparse_categorical_crossentropy', metrics = ['accuracy'])
+
 model.fit_generator(datagen.flow(X_train, y_train, batch_size = 32), validation_data = (X_val, y_val), epochs = 25, steps_per_epoch = len(X_train) / 32,
                    callbacks = [checkpoint])
 
@@ -89,12 +92,11 @@ loss, score = model.evaluate(X_test, y_test)
 
 
 print('loss: {}, score: {}'.format(loss, score))
-adam = Adam(lr = 1e-5)
-model.compile(optimizer = adam, loss = 'sparse_categorical_crossentropy', metrics = ['accuracy'])
 
 #Change 1: learning rate = 1e-6, 25 epochs with frozen layers and 25 epochs with model that active layers of blockconv 3
     #acc_1st_train: .55, acc_2nd_train: .59
   
-#Change 2: learning rate = 1e-5
+#Change 2: learning rate of the first training = 1e-3, learning rate of the second training = 1e-6, 25 epochs at 2 times training
+    #acc_1st_train: .65, acc_2nd_train: .80
 
 
